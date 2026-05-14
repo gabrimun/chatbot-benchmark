@@ -1,4 +1,7 @@
 import requests
+import csv
+import time
+import re
 
 # Config
 BASE_URL = "http://127.0.0.1"
@@ -10,13 +13,27 @@ url = f"{BASE_URL}:{PORT}{ENDPOINT}"
 
 response = requests.get(url)
 
-payload = {"query": "Dove devo cliccare per inserire un nuovo cliente nel sistema?",
-            "role": "backoffice",
-            "dev": "false"}
-response = requests.post(url, json=payload)
+with open('questions.csv', 'r') as f:
+    reader = csv.DictReader(f)
 
-if response.status_code == 200:
-    data = response.json()
-    print("Successo:", data)
-else:
-    print(f"Errore {response.status_code}: {response.text}")
+    for row in reader:
+
+        payload = {"query": row['domande'],
+                    "role": row['ruolo'],
+                    "dev": "false"}
+        response = requests.post(url, json=payload)
+
+        if response.status_code == 200:
+            data = response.json()
+            result = data.get("result")
+
+            result = result.split("Puoi consultare")[0].strip()
+
+            print(result)
+        else:
+            print(f"Errore {response.status_code}: {response.text}")
+
+        try:
+            time.sleep(5)
+        except KeyboardInterrupt:
+            break
