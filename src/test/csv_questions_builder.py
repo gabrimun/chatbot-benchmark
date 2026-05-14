@@ -11,15 +11,12 @@ load_dotenv()
 
 path = Path('/home/gab/Scrivania/tirocinio/test-lingotto/user')
 
-
-try:
-    df = pd.read_csv('prova.csv')
-except EmptyDataError:
-    df = pd.DataFrame(columns=['indice', 'ruolo', 'domande'])
+# Crea un nuovo DataFrame vuoto ogni volta
+df = pd.DataFrame(columns=['indice', 'ruolo', 'domande'])
 
 rows = []
 # index counter
-indice_counter = len(df) + 1
+indice_counter = 1
 
 for role in sorted(path.iterdir()):
     # iterazione sottocartelle di user
@@ -32,7 +29,7 @@ for role in sorted(path.iterdir()):
                 md_content = f.read()
 
                 md_no_link = re.sub(r'!\[.*?\]\(.*?\)', '', md_content) # remove images link
-                md_no_link = re.sub(r'\[.*?\]\(.*?\)', '', md_no_link)    # remove navigation links
+                md_no_link = re.sub(r'\[.*?\]\(.*?\)', '', md_no_link)  # remove navigation links
                 md_no_link = re.sub(r'\s*\|\s*', ' ', md_no_link)
 
                 documentation = documentation + md_no_link + "\n\n\n\n"
@@ -65,13 +62,8 @@ for role in sorted(path.iterdir()):
     for question in line_questions:
         rows.append({'indice': indice_counter, 'ruolo': role.name, 'domande': question})
         indice_counter += 1
-    
-
-    #with open('questions.md', 'a') as f:
-    #    f.write(f"{role.name}\n")
-    #    f.write(f"{questions} \n\n\n")
-
     print(f"... fine scrittura domande.")
+
 
 # add lines to dataframe
 if rows:
@@ -81,5 +73,5 @@ if rows:
 # add index column
 print("Aggiungo le domande al dataframe...")
 df = df[['indice', 'ruolo', 'domande']]
-df.to_csv('prova.csv', index=False)
+df.to_csv('questions.csv', index=False)
 print("... aggiunta domande terminata")

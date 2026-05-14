@@ -2,5 +2,4 @@
 /user
 /.venv
 __pycache__/
-questions.md
-prova.csv
+questions.csv
