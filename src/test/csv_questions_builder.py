@@ -21,6 +21,8 @@ indice_counter = 1
 for role in sorted(path.iterdir()):
     # iterazione sottocartelle di user
     print(f"Creazione documentazione per {role.name}...") 
+    file_name = role.name + '.txt'
+    
     documentation = ""
     for file in sorted(role.rglob("*.md")):
 
@@ -34,6 +36,9 @@ for role in sorted(path.iterdir()):
 
                 documentation = documentation + md_no_link + "\n\n\n\n"
             
+                #with open (file_name, 'a') as f:
+                #    f.write(documentation)
+
                 #print(documentation)
     print(f"... terminata composizione documentazione per {role.name}")
 
@@ -56,6 +61,9 @@ for role in sorted(path.iterdir()):
         ]
     )
     questions = response.choices[0].message.content or ""
+
+    #with open(file_name, 'a') as f:
+    #    f.write(questions)
 
     line_questions = questions.splitlines()
 
