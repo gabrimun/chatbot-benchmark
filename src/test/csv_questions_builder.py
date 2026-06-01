@@ -1,3 +1,23 @@
+"""
+CSV_QUESTIONS_BUILDER.PY - Automated Dataset Generator (Synthetic Testing Questions)
+
+This script scans the software documentation organized by user-role folders,
+cleans the Markdown files by removing non-textual elements (links, images, tables),
+and leverages an LLM (OpenAI) to generate a set of synthetic user questions for each role.
+
+ROLE-DEPENDENCY WARNING:
+This script tightly relies on a directory structure based on user roles (i.e., the PATH 
+environment variable must point to a directory containing subfolders like 'shop', 'backoffice', etc.).
+
+If the chatbot or software under test DOES NOT implement a role-based logic:
+1. Remove the outer loop: `for role in sorted(path.iterdir()):`.
+2. Modify the Markdown file collection (`role.rglob("*.md")`) to directly scan a single, 
+   centralized folder containing the global documentation.
+3. In both the LLM system prompt and the DataFrame creation, remove any references 
+   to the role context (e.g., fallback the 'ruolo' field to a fixed value like 'generic').
+"""
+
+
 from pathlib import Path
 from prompt import *
 from openai import OpenAI
@@ -9,14 +29,18 @@ from pandas.errors import EmptyDataError
 
 load_dotenv()
 
-path = Path('/home/gab/Scrivania/tirocinio/test-lingotto/user')
+path = Path(os.getenv("DATA_PATH"))
 
-# Crea un nuovo DataFrame vuoto ogni volta
-df = pd.DataFrame(columns=['indice', 'ruolo', 'domande'])
+# new dataframe
+df = pd.DataFrame(columns=['index', 'role', 'question'])
 
 rows = []
 # index counter
 indice_counter = 1
+
+#------------------------------------------------------
+# Generating unified documentation from multiple files
+#------------------------------------------------------
 
 for role in sorted(path.iterdir()):
     # iterazione sottocartelle di user
@@ -36,18 +60,11 @@ for role in sorted(path.iterdir()):
 
                 documentation = documentation + md_no_link + "\n\n\n\n"
             
-                #with open (file_name, 'a') as f:
-                #    f.write(documentation)
-
-                #print(documentation)
     print(f"... terminata composizione documentazione per {role.name}")
 
-    # invio richiesta per creazione domande
+    # send questions request to OpenAI api 
     print(f"Inizio scrittura domande per {role.name}...")
     prompt = PROMPT + documentation
-
-    #api_key = os.getenv("API_KEY") 
-    #base_url = os.getenv("BASE_URL")
 
     client = OpenAI(
         api_key=os.getenv("API_KEY"),
@@ -62,8 +79,6 @@ for role in sorted(path.iterdir()):
     )
     questions = response.choices[0].message.content or ""
 
-    #with open(file_name, 'a') as f:
-    #    f.write(questions)
 
     line_questions = questions.splitlines()
 
