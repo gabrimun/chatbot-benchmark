@@ -36,7 +36,7 @@ if not EMBEDDING_MODEL:
     raise RuntimeError("EMBEDDING_MODEL is not set. Check your .env file or environment.")
 
 
-# Config lingotto url
+# Config chatbot url
 BASE_URL = "http://127.0.0.1"
 PORT = "5050"
 ENDPOINT = "/api/response"  

@@ -43,7 +43,7 @@ indice_counter = 1
 #------------------------------------------------------
 
 for role in sorted(path.iterdir()):
-    # iterazione sottocartelle di user
+    # filesystem tree iteration
     print(f"Creazione documentazione per {role.name}...") 
     file_name = role.name + '.txt'
     
