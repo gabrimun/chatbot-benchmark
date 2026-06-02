@@ -28,6 +28,8 @@ load_dotenv()
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, required=True, help="llm model name")
 parser.add_argument("--file-name", type=str, help="dataset file name, default: questions", default='questions')
+parser.add_argument("--force", help="Overwrite the existing dataset file if it already exists.", action='store_true')
+
 args = parser.parse_args()
 
 f_name = args.file_name if args.file_name.endswith('.csv') else args.file_name + '.csv'
@@ -41,6 +43,14 @@ file_path = dataset_dir / f_name
 
 if not file_path.is_file():
     print(f"Dataset '{f_name}' doesn't exist.")
+    exit()
+
+# load csv file
+df = pd.read_csv(file_path)
+vecs = []
+
+if args.model in df.columns and not args.force:
+    print(f"Responses for model {args.model} already exists. Change the model or use the --force argument to overwrite it.")
     exit()
 
 # embedding model configuration
@@ -70,9 +80,6 @@ model = SentenceTransformer(
     device=EMBEDDING_DEVICE
 )
 
-# load csv file
-df = pd.read_csv(file_path)
-vecs = []
 
 for _, row in df.iterrows():
 
