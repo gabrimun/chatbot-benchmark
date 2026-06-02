@@ -1,6 +1,7 @@
 .env
 /user
 /.venv
+/dataset
 /debug_file
 __pycache__/
 questions.csv
