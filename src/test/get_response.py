@@ -14,6 +14,7 @@ Modify the payload according to your chatbot implementation.
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import pandas as pd
+from pathlib import Path
 import requests
 import time
 import re
@@ -26,7 +27,21 @@ load_dotenv()
 # parser configuration
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, required=True, help="llm model name")
+parser.add_argument("--file-name", type=str, help="dataset file name, default: questions", default='questions')
 args = parser.parse_args()
+
+f_name = args.file_name if args.file_name.endswith('.csv') else args.file_name + '.csv'
+
+# dataset directory setup
+project_root = Path(__file__).resolve().parent.parent.parent
+dataset_dir = project_root / 'dataset'
+
+# csv file path
+file_path = dataset_dir / f_name
+
+if not file_path.is_file():
+    print(f"Dataset '{f_name}' doesn't exist.")
+    exit()
 
 # embedding model configuration
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
@@ -56,7 +71,7 @@ model = SentenceTransformer(
 )
 
 # load csv file
-df = pd.read_csv('questions.csv')
+df = pd.read_csv(file_path)
 vecs = []
 
 for _, row in df.iterrows():
@@ -91,7 +106,7 @@ model_name = args.model
 valid = [v is not None for v in vecs]
 df_out = df[valid].copy()
 df_out[model_name] = [json.dumps(v.tolist()) for v in vecs if v is not None]
-df_out.to_csv('questions.csv', index=False)
+df_out.to_csv(file_path, index=False)
 
 # recap
 print(f"Add {len(vecs)} responses, model: {model_name}")
