@@ -42,12 +42,12 @@ This repository covers the entire evaluation pipeline: from consolidating docume
 ## Usage
 
 ### 1. Build the question dataset
-* Run `python3 csv_questions_builder.py` for build the question dataset, saved in `questions.csv`.
+* Run `python csv_questions_builder.py` for build the question dataset, saved in `questions.csv`.
 * *Note: eanch run will rewrite the dataset file, so you will lose previous questions.*
 
 ### 2. Get responses from the LLM model
-* Run `python3 get_response.py --model gemini-3.1-flash-lite` where `--model` is the LLM you are using in the chatbot, this will create a new column for each model used.
+* Run `python get_response.py --model gemini-3.1-flash-lite` where `--model` is the LLM you are using in the chatbot, this will create a new column for each model used.
 * *Note: This step must be executed at least twice using different LLM configurations/models on your chatbot to enable a cross-model comparison.*
 
 ### 3. Similarity test
-* Run `python3 similarity_test.py --first_model gemini-3.1-flash-lite --second_model gpt-4o` for testing **cosine_similarity** between the two models.
+* Run `python similarity_test.py --first_model gemini-3.1-flash-lite --second_model gpt-4o` for testing **cosine_similarity** between the two models.
