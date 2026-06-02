@@ -23,11 +23,21 @@ from prompt import *
 from openai import OpenAI
 import re
 import os
+import argparse
 from dotenv import load_dotenv
 import pandas as pd
 from pandas.errors import EmptyDataError
 
 load_dotenv()
+
+# parser configuration
+parser = argparse.ArgumentParser()
+parser.add_argument("--file-name", type=str, help="dataset file name, default: questions", default='question')
+args = parser.parse_args()
+
+if not args.file_name.endswith('.csv'):
+    args.file_name = args.file_name + '.csv'
+f_name = args.file_name
 
 path = Path(os.getenv("DATA_PATH"))
 
@@ -96,5 +106,5 @@ if rows:
 # add index column
 print("Aggiungo le domande al dataframe...")
 df = df[['indice', 'ruolo', 'domande']]
-df.to_csv('questions.csv', index=False)
+df.to_csv(f_name, index=False)
 print("... aggiunta domande terminata")
