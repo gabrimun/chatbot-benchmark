@@ -6,6 +6,8 @@ response embeddings from the dataset and calculates the Cosine Similarity betwee
 the answers of two different models to quantitatively measure their divergence.
 """
 
+
+from pathlib import Path
 import argparse
 import pandas as pd
 import numpy as np
@@ -15,9 +17,23 @@ from numpy.linalg import norm
 # parser configuration
 # --------------------
 parser = argparse.ArgumentParser()
-parser.add_argument("--first_model", type=str, required=True, help="First model to test")
-parser.add_argument("--second_model", type=str, required=True, help="Second model to test")
+parser.add_argument("--first-model", type=str, required=True, help="First model to test")
+parser.add_argument("--second-model", type=str, required=True, help="Second model to test")
+parser.add_argument("--file-name", type=str, help="dataset file name, default: questions", default='questions')
 args = parser.parse_args()
+
+f_name = args.file_name if args.file_name.endswith('.csv') else args.file_name + '.csv'
+
+# dataset directory setup
+project_root = Path(__file__).resolve().parent.parent.parent
+dataset_dir = project_root / 'dataset'
+
+# csv file path
+file_path = dataset_dir / f_name
+
+if not file_path.is_file():
+    print(f"Dataset '{f_name}' doesn't exist.")
+    exit()
 
 
 # -----------------------
@@ -25,11 +41,11 @@ args = parser.parse_args()
 # -----------------------
 
 # first model vectors extraction
-df = pd.read_csv('questions.csv')
+df = pd.read_csv(file_path)
 v1 = np.array(df[args.first_model].apply(json.loads).tolist())
 
 # second model vectors extraction
-df = pd.read_csv('questions.csv')
+df = pd.read_csv(file_path)
 v2 = np.array(df[args.second_model].apply(json.loads).tolist())
 
 
