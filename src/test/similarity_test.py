@@ -17,8 +17,7 @@ from numpy.linalg import norm
 # parser configuration
 # --------------------
 parser = argparse.ArgumentParser()
-parser.add_argument("--first-model", type=str, required=True, help="First model to test")
-parser.add_argument("--second-model", type=str, required=True, help="Second model to test")
+parser.add_argument("--judge-model", type=str, required=True, help="First model to test")
 parser.add_argument("--file-name", type=str, help="dataset file name, default: questions", default='questions')
 args = parser.parse_args()
 
@@ -36,20 +35,31 @@ if not file_path.is_file():
     exit()
 
 
+tested_models = {}
+NON_EMBEDDING_COLS = {'indice', 'ruolo', 'domande', args.judge_model}
 # -----------------------
 #   VECTORS EXTRACTION
 # -----------------------
+df = pd.read_csv(file_path)
+
+# models extraction
+models = [col for col in df.columns if col not in NON_EMBEDDING_COLS]
 
 # first model vectors extraction
-df = pd.read_csv(file_path)
-v1 = np.array(df[args.first_model].apply(json.loads).tolist())
+v1 = np.array(df[args.judge_model].apply(json.loads).tolist())
 
-# second model vectors extraction
-df = pd.read_csv(file_path)
-v2 = np.array(df[args.second_model].apply(json.loads).tolist())
+for model in models:
+    v2 = np.array(df[model].apply(json.loads).tolist())
 
+    cosine = np.sum(v1 * v2, axis=1) / (norm(v1, axis=1) * norm(v2, axis=1))
 
-cosine = np.sum(v1 * v2, axis=1) / (norm(v1, axis=1) * norm(v2, axis=1))
-# print("Cosine Similarity:", cosine)
+    tested_models[model] = float(cosine.mean())
 
-print("Mean:", cosine.mean())
+#---------------
+# Tests results
+#---------------
+print("\n------RESULTS------\n")
+print(f"Judge model: {args.judge_model}\n")
+ 
+for model, result in tested_models.items():
+    print(f"Model: {model}  result: {result}")
