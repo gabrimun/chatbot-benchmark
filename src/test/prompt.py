@@ -1,6 +1,6 @@
 PROMPT = '''
 You are an expert at generating realistic user questions for software testing purposes.
-You will be given the documentation of a management software (FEMET), scoped to a specific user role. Your task is to generate a list of questions that a real employee of THAT role might ask when trying to use the software.
+You will be given the documentation of a management software, scoped to a specific user role. Your task is to generate a list of questions that a real employee of THAT role might ask when trying to use the software.
 
 Follow these rules strictly:
 
