@@ -42,12 +42,46 @@ This repository covers the entire evaluation pipeline: from consolidating docume
 ## Usage
 
 ### 1. Build the question dataset
-* Run `python csv_questions_builder.py` for build the question dataset, saved in `questions.csv`.
-* *Note: eanch run will rewrite the dataset file, so you will lose previous questions.*
+
+* Run `python csv_questions_builder.py` to build the question dataset, saved in `questions.csv`.
+* Optionally: `python csv_questions_builder.py --file-name my_dataset --force`
+* *Note: each run will overwrite the dataset file if `--force` is used.*
+
+**CLI Arguments**
+
+| Argument      | Type   | Required | Default     | Description                                                                |
+| ------------- | ------ | -------- | ----------- | -------------------------------------------------------------------------- |
+| `--file-name` | string | No       | `questions` | Name of the output CSV file. Automatically appends `.csv` if not provided. |
+| `--force`     | flag   | No       | `False`     | Overwrites the output file if it already exists.                           |
+
+---
 
 ### 2. Get responses from the LLM model
-* Run `python get_response.py --model gemini-3.1-flash-lite` where `--model` is the LLM you are using in the chatbot, this will create a new column for each model used.
-* *Note: This step must be executed at least twice using different LLM configurations/models on your chatbot to enable a cross-model comparison.*
+
+* Run `python get_response.py --model gemini-3.1-flash-lite`
+* Optionally: `python get_response.py --model gpt-4o --file-name my_dataset --force`
+* This will create a new column for each model used.
+* *Note: run this step multiple times with different models for comparison.*
+
+**CLI Arguments**
+
+| Argument      | Type   | Required | Default     | Description                                                                              |
+| ------------- | ------ | -------- | ----------- | ---------------------------------------------------------------------------------------- |
+| `--model`     | string | Yes      | —           | Name of the LLM model used to label the generated responses column.                      |
+| `--file-name` | string | No       | `questions` | Name of the input/output CSV dataset file. Automatically appends `.csv` if not provided. |
+| `--force`     | flag   | No       | `False`     | Overwrites existing model responses in the dataset if already present.                   |
+
+---
 
 ### 3. Similarity test
-* Run `python similarity_test.py --first_model gemini-3.1-flash-lite --second_model gpt-4o` for testing **cosine_similarity** between the two models.
+
+* Run `python similarity_test.py --judge-model gemini-3.1-flash-lite`
+* Optionally: `python similarity_test.py --judge-model gpt-4o --file-name my_dataset`
+* The script compares the selected model against all other models present in the dataset.
+
+**CLI Arguments**
+
+| Argument        | Type   | Required | Default     | Description                                                                       |
+| --------------- | ------ | -------- | ----------- | --------------------------------------------------------------------------------- |
+| `--judge-model` | string | Yes      | —           | Name of the reference model used to compare embeddings against other models.      |
+| `--file-name`   | string | No       | `questions` | Name of the input CSV dataset file. Automatically appends `.csv` if not provided. |
