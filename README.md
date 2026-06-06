@@ -1,7 +1,20 @@
 # Chatbot Benchmarking & Evaluation Framework
 
-An automated testing framework designed to benchmark responses from a chatbot. 
-This repository covers the entire evaluation pipeline: from consolidating documentation files and generating synthetic questions, to collecting chatbot responses and calculating the statistical similarity between two different LLM models.
+An automated testing framework designed to benchmark responses from a chatbot.
+This repository covers the entire evaluation pipeline: from consolidating documentation files and generating synthetic questions, to collecting chatbot responses and calculating the statistical similarity between different LLM models.
+
+>**Integration Assumptions**
+> This framework is designed for chatbots that expose an HTTP API endpoint.
+> By default, it sends HTTP POST requests with a predefined payload structure (e.g., `query`, `role`) and expects a response containing a `result` field.
+>
+> The current implementation reflects a role-based chatbot architecture and is **not fully plug-and-play**.
+> If your chatbot differs, you will need to adapt:
+>
+> * the request payload (`get_response.py`)
+> * the response parsing logic
+> * the role-based handling (if not applicable)
+>
+> With these adjustments, the framework can be used with any chatbot supporting HTTP-based interaction.
 
 ---
 
