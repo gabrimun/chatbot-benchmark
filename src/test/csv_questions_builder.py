@@ -23,11 +23,33 @@ from prompt import *
 from openai import OpenAI
 import re
 import os
+import argparse
 from dotenv import load_dotenv
 import pandas as pd
 from pandas.errors import EmptyDataError
 
 load_dotenv()
+
+# parser configuration
+parser = argparse.ArgumentParser()
+parser.add_argument("--file-name", type=str, help="dataset file name, default: questions", default='questions')
+parser.add_argument("--force", help="Overwrite the existing dataset file if it already exists.", action='store_true')
+args = parser.parse_args()
+
+f_name = args.file_name if args.file_name.endswith('.csv') else args.file_name + '.csv'
+
+# dataset directory setup
+project_root = Path(__file__).resolve().parent.parent.parent
+dataset_dir = project_root / 'dataset'
+
+dataset_dir.mkdir(parents=True, exist_ok=True)
+
+# csv file path
+file_path = dataset_dir / f_name
+
+if file_path.is_file() and not args.force:
+    print(f"Dataset '{f_name}' already exists. Change the name or use the --force argument to overwrite it.")
+    exit()
 
 path = Path(os.getenv("DATA_PATH"))
 
@@ -96,5 +118,5 @@ if rows:
 # add index column
 print("Aggiungo le domande al dataframe...")
 df = df[['indice', 'ruolo', 'domande']]
-df.to_csv('questions.csv', index=False)
+df.to_csv(dataset_dir/f_name, index=False)
 print("... aggiunta domande terminata")
