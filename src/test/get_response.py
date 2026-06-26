@@ -48,6 +48,7 @@ if not file_path.is_file():
 # load csv file
 df = pd.read_csv(file_path)
 vecs = []
+times = []  # <--- Lista per memorizzare i tempi di ogni chiamata
 
 if args.model in df.columns and not args.force:
     print(f"Responses for model {args.model} already exists. Change the model or use the --force argument to overwrite it.")
@@ -69,8 +70,6 @@ ENDPOINT = "/api/response"
 # URL
 url = f"{BASE_URL}:{PORT}{ENDPOINT}"
 
-response = requests.get(url)
-
 # error counters
 chatbot_erros = 0
 
@@ -86,25 +85,35 @@ for _, row in df.iterrows():
         payload = {"query": row['domande'],
                     "role": row['ruolo'],
                     "dev": "false"}
+        
+        # timer start
+        start_time = time.perf_counter()
+        
         response = requests.post(url, json=payload)
+        
+        # timer stop
+        end_time = time.perf_counter()
+        response_time = end_time - start_time
 
         if response.status_code == 200:
             data = response.json()
             result = data.get("result")
 
-
             # create vector
             vecs.append(model.encode(result))
+            
+            # save response time
+            times.append(response_time)
 
-            #print(result)
-            print(f"Response to question: {row['indice']}.\n")
+            print(f"Response to question: {row['indice']} (Time: {response_time:.4f}s).\n")
         else:
-            print(f"Errore {response.status_code}: {response.text}")
+            print(f"Errore {response.status_code} {response.text}")
             vecs.append(None)  # placeholder
+            times.append(None) # placeholder
             chatbot_erros += 1
 
         try:
-            time.sleep(5)
+            time.sleep(0)
         except KeyboardInterrupt:
             break
 
@@ -118,3 +127,9 @@ df_out.to_csv(file_path, index=False)
 # recap
 print(f"Add {len(vecs)} responses, model: {model_name}")
 print(f"Chatbot errors: {chatbot_erros}")
+
+# times mean
+valid_times = [t for t in times if t is not None]
+if valid_times:
+    media_tempo = sum(valid_times) / len(valid_times)
+    print(f"Mean response time: {media_tempo:.4f} seconds")
